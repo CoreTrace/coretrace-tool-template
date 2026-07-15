@@ -3,6 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
+source "${SCRIPT_DIR}/clang-format-common.sh"
+
+CLANG_FORMAT_BIN="$(resolve_clang_format)"
 
 files=()
 while IFS= read -r -d '' file; do
@@ -19,7 +22,7 @@ fi
 echo "Checking formatting on ${#files[@]} files..."
 failed=0
 for file in "${files[@]}"; do
-    if ! clang-format --dry-run --Werror "${file}"; then
+    if ! "${CLANG_FORMAT_BIN}" --dry-run --Werror "${file}"; then
         failed=1
     fi
 done

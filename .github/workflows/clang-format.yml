@@ -8,15 +8,21 @@ on:
 jobs:
   format-check:
     runs-on: ubuntu-latest
+    env:
+      CLANG_FORMAT_VERSION: "20"
+      CLANG_FORMAT_PYPI_VERSION: "20.1.8"
+      CLANG_FORMAT_INSTALL_DIR: "clang-format-venv"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install clang-format 17
+      - name: Install clang-format 20
         run: |
-          sudo apt-get update
-          sudo apt-get install -y clang-format-17
-          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-17 100
+          python3 -m venv "${RUNNER_TEMP}/${CLANG_FORMAT_INSTALL_DIR}"
+          "${RUNNER_TEMP}/${CLANG_FORMAT_INSTALL_DIR}/bin/python" -m pip install --upgrade pip
+          "${RUNNER_TEMP}/${CLANG_FORMAT_INSTALL_DIR}/bin/python" -m pip install "clang-format==${CLANG_FORMAT_PYPI_VERSION}"
+          echo "CLANG_FORMAT=${RUNNER_TEMP}/${CLANG_FORMAT_INSTALL_DIR}/bin/clang-format" >> "${GITHUB_ENV}"
+          "${RUNNER_TEMP}/${CLANG_FORMAT_INSTALL_DIR}/bin/clang-format" --version
 
       - name: Run format-check
         run: ./scripts/format-check.sh
